@@ -1,9 +1,10 @@
-const CACHE = 'rutina-v1';
+const CACHE = 'rutina-v2';
 const ASSETS = [
-  '/rutina/file/index.html',
-  '/rutina/file/manifest.json',
-  '/rutina/file/icon-192.png',
-  '/rutina/file/icon-512.png'
+  '/rutina/',
+  '/rutina/index.html',
+  '/rutina/manifest.json',
+  '/rutina/icon-192.png',
+  '/rutina/icon-512.png'
 ];
 
 self.addEventListener('install', e => {
