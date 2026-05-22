@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan de Entrenamiento – Carmen</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Rutina">
+<meta name="theme-color" content="#1a1a2e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --ink: #1a1a2e;
+    --accent1: #e63946;
+    --accent2: #457b9d;
+    --accent3: #2a9d8f;
+    --warm: #f4a261;
+    --card: #fffdf7;
+    --shadow: rgba(26,26,46,0.10);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--ink); min-height: 100vh; }
+
+  header { background: var(--ink); color: #fff; padding: 36px 40px 28px; position: relative; overflow: hidden; }
+  header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 280px; height: 280px; background: var(--accent1); border-radius: 50%; opacity: .18; }
+  header::after { content: ''; position: absolute; bottom: -40px; left: 30%; width: 180px; height: 180px; background: var(--accent2); border-radius: 50%; opacity: .12; }
+  .header-inner { position: relative; z-index: 1; }
+  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.8rem, 7vw, 5rem); letter-spacing: 2px; line-height: 1; }
+  header h1 span { color: var(--accent1); }
+  header p { margin-top: 8px; font-size: .95rem; opacity: .65; letter-spacing: .5px; }
+  .legend { display: flex; gap: 18px; margin-top: 18px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: .82rem; opacity: .85; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .yt-hint { margin-top: 10px; font-size: .78rem; opacity: .55; display: flex; align-items: center; gap: 6px; }
+
+  .days-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; padding: 36px 32px; max-width: 1200px; margin: 0 auto; }
+
+  .day-card { background: var(--card); border-radius: 18px; box-shadow: 0 4px 24px var(--shadow); overflow: hidden; display: flex; flex-direction: column; animation: fadeUp .5s ease both; }
+  .day-card:nth-child(2) { animation-delay: .1s; }
+  .day-card:nth-child(3) { animation-delay: .2s; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+
+  .day-header { padding: 20px 22px 16px; color: #fff; position: relative; overflow: hidden; }
+  .day-header::after { content: attr(data-num); position: absolute; right: 14px; top: -10px; font-family: 'Bebas Neue', sans-serif; font-size: 7rem; opacity: .13; line-height: 1; color: #fff; }
+  .day-card:nth-child(1) .day-header { background: var(--accent2); }
+  .day-card:nth-child(2) .day-header { background: var(--accent1); }
+  .day-card:nth-child(3) .day-header { background: var(--accent3); }
+  .day-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem; letter-spacing: 1.5px; }
+  .day-header .day-focus { font-size: .8rem; opacity: .8; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+
+  .day-body { padding: 20px 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 18px; }
+
+  .section-label { display: flex; align-items: center; gap: 8px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 10px; color: #888; }
+  .section-label .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .activation-block .section-label .dot { background: var(--warm); }
+  .activation-block .rounds-badge { margin-left: auto; background: var(--warm); color: #fff; font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+
+  .exercise-pills { display: flex; flex-direction: column; gap: 7px; }
+
+  a.pill, div.pill {
+    display: flex; align-items: center; gap: 10px;
+    background: #f8f6f0; border-radius: 10px; padding: 8px 12px;
+    font-size: .84rem; text-decoration: none; color: var(--ink);
+    transition: background .18s, box-shadow .18s, transform .15s;
+  }
+  a.pill { cursor: pointer; }
+  a.pill:hover { background: #deeeff; box-shadow: 0 2px 10px rgba(69,123,157,.22); transform: translateX(3px); }
+  div.pill { opacity: .65; cursor: default; }
+
+  .pill svg { flex-shrink: 0; }
+  .pill .pill-name { flex: 1; }
+  .pill .pill-qty { font-weight: 700; font-size: .78rem; color: #888; white-space: nowrap; }
+  .pill .yt-badge {
+    display: flex; align-items: center; gap: 3px;
+    background: #ff0000; color: #fff;
+    font-size: .62rem; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .pill .yt-badge svg { width: 10px; height: 10px; }
+
+  .bloque-wrap { display: flex; flex-direction: column; gap: 12px; }
+  .bloque { border: 1.5px solid #ece8df; border-radius: 12px; overflow: hidden; }
+  .bloque-title { display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; background: #f2ede4; }
+  .bloque-title .rounds { margin-left: auto; background: var(--ink); color: #fff; font-size: .68rem; padding: 2px 8px; border-radius: 20px; }
+  .bloque-exercises { padding: 10px 10px 8px; display: flex; flex-direction: column; gap: 6px; }
+  .bloque a.pill { background: #fdfaf4; }
+  .bloque a.pill:hover { background: #deeeff; }
+
+  .cardio-block .section-label .dot { background: var(--accent1); }
+  .cardio-options { display: flex; flex-direction: column; gap: 8px; }
+  a.cardio-card { text-decoration: none; color: var(--ink); transition: background .18s, transform .15s, box-shadow .15s; cursor: pointer; }
+  a.cardio-card:hover { background: linear-gradient(135deg, #deeeff 0%, #c8e0f8 100%); border-color: #a8c8e8; transform: translateX(3px); box-shadow: 0 2px 10px rgba(69,123,157,.18); }
+  .cardio-card .cardio-label { font-size: .67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #b0a090; display: block; margin-bottom: 1px; }
+  .cardio-card { background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%); border: 1.5px solid #ffd0d0; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+  .cardio-card .cardio-icon { width: 42px; height: 42px; flex-shrink: 0; }
+  .cardio-card .cardio-text { font-size: .84rem; line-height: 1.5; }
+  .cardio-card .cardio-text strong { display: block; font-size: .9rem; margin-bottom: 2px; }
+
+  footer { text-align: center; padding: 24px; font-size: .78rem; color: #aaa; }
+
+  .icon-plank    { color: #457b9d; }
+  .icon-glute    { color: #e63946; }
+  .icon-squat    { color: #2a9d8f; }
+  .icon-lunge    { color: #6c63ff; }
+  .icon-row      { color: #2a9d8f; }
+  .icon-abs      { color: #e63946; }
+  .icon-shoulder { color: #457b9d; }
+  .icon-bicep    { color: #f4a261; }
+  .icon-lateral  { color: #6c63ff; }
+  .icon-box      { color: #2a9d8f; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>PLAN DE <span>ENTRENAMIENTO</span></h1>
+    <p>Carmen · 3 días semanales · Fuerza + Cardio</p>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#f4a261"></div>Activación</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1a1a2e"></div>Fuerza – Bloques</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e63946"></div>Cardio</div>
+    </div>
+    <div class="yt-hint">▶ Tocá el nombre o ícono de cada ejercicio para ver el video en YouTube</div>
+  </div>
+</header>
+
+<!-- YT badge SVG helper (reusable inline) -->
+<template id="yt-svg"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg></template>
+
+<div class="days-grid">
+
+<!-- ══════════ DÍA 1 ══════════ -->
+<div class="day-card">
+  <div class="day-header" data-num="1"><h2>Día 1</h2><div class="day-focus">Piernas · Glúteos · Core</div></div>
+  <div class="day-body">
+
+    <div class="activation-block">
+      <div class="section-label"><div class="dot"></div>Activación<span class="rounds-badge">× 3 vueltas</span></div>
+      <div class="exercise-pills">
+        <a class="pill" href="https://www.youtube.com/shorts/i3bhIDH8z5U" target="_blank">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-plank"><rect x="3" y="11" width="18" height="3" rx="1.5"/><circle cx="12" cy="8" r="2"/><line x1="8" y1="14" x2="6" y2="19"/><line x1="16" y1="14" x2="18" y2="19"/></svg>
+          <span class="pill-name">Plancha baja</span><span class="pill-qty">20″</span>
+          <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+        </a>
+        <a class="pill" href="https://www.youtube.com/shorts/ekUs4GkER6g" target="_blank">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-squat"><circle cx="12" cy="4" r="2"/><path d="M12 6v5l-3 4h6l-3-4"/><line x1="9" y1="15" x2="7" y2="20"/><line x1="15" y1="15" x2="17" y2="20"/></svg>
+          <span class="pill-name">Sentadilla sin peso isométrica</span><span class="pill-qty">10″</span>
+          <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+        </a>
+        <a class="pill" href="https://www.youtube.com/shorts/arJeSt9Yeho" target="_blank">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-glute"><path d="M4 18 Q8 10 12 8 Q16 10 20 18"/><circle cx="12" cy="5" r="2"/></svg>
+          <span class="pill-name">Plancha alta + elevación glúteo 1 pierna</span><span class="pill-qty">10 c/p</span>
+          <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label"><div class="dot" style="background:#1a1a2e"></div>Trabajo Central – Fuerza</div>
+      <div class="bloque-wrap">
+        <div class="bloque">
+          <div class="bloque-title">🔷 1° Bloque <span class="rounds">× 4 vueltas</span></div>
+          <div class="bloque-exercises">
+            <a class="pill" href="https://www.youtube.com/shorts/iNvPzf15KKA" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-squat"><circle cx="12" cy="4" r="2"/><path d="M9 8h6l1 8H8l1-8z"/><line x1="10" y1="16" x2="8" y2="21"/><line x1="14" y1="16" x2="16" y2="21"/></svg>
+              <span class="pill-name">Sillón de cuádriceps (máquina)</span><span class="pill-qty">8 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+            <a class="pill" href="https://youtube.com/shorts/yhu_uL3G8pU" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-squat"><circle cx="12" cy="3" r="2"/><path d="M12 5v6l-4 5h8l-4-5V5"/><line x1="8" y1="16" x2="6" y2="21"/><line x1="16" y1="16" x2="18" y2="21"/></svg>
+              <span class="pill-name">Sentadilla con kettlebell</span><span class="pill-qty">8 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+          </div>
+        </div>
+        <div class="bloque">
+          <div class="bloque-title">🔷 2° Bloque <span class="rounds">× 4 vueltas</span></div>
+          <div class="bloque-exercises">
+            <a class="pill" href="https://youtube.com/shorts/sFZujfolhYc" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-lunge"><circle cx="12" cy="3" r="2"/><line x1="12" y1="5" x2="12" y2="11"/><path d="M12 11l-5 6"/><path d="M12 11l3 6"/></svg>
+              <span class="pill-name">Estocadas inversas con peso</span><span class="pill-qty">6 c/p</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+            <a class="pill" href="https://youtube.com/shorts/Cxp6D7LEqjM" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-glute"><path d="M5 14 Q12 8 19 14"/><line x1="5" y1="14" x2="5" y2="17"/><line x1="19" y1="14" x2="19" y2="17"/><circle cx="12" cy="10" r="2"/></svg>
+              <span class="pill-name">Puente de glúteos con disco (recostada)</span><span class="pill-qty">12 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+          </div>
+        </div>
+        <div class="bloque">
+          <div class="bloque-title">🔷 3° Bloque <span class="rounds">× 5 vueltas</span></div>
+          <div class="bloque-exercises">
+            <a class="pill" href="https://youtube.com/shorts/_cdt_-Bhi48" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-abs"><ellipse cx="12" cy="14" rx="6" ry="4"/><circle cx="12" cy="7" r="2"/><line x1="8" y1="18" x2="8" y2="21"/><line x1="16" y1="18" x2="16" y2="21"/></svg>
+              <span class="pill-name">Oblicuos Cruzados</span><span class="pill-qty">20 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+            <a class="pill" href="https://www.youtube.com/shorts/fNsxKTKfMNI" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-plank"><rect x="2" y="10" width="20" height="3" rx="1.5"/><circle cx="6" cy="7" r="2"/></svg>
+              <span class="pill-name">Plancha lateral</span><span class="pill-qty">10″</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cardio-block">
+      <div class="section-label"><div class="dot"></div>Cardio</div>
+      <div class="cardio-options">
+        <div class="cardio-card">
+          <svg class="cardio-icon" viewBox="0 0 48 48" fill="none" stroke="#e63946" stroke-width="2.5"><circle cx="24" cy="12" r="4"/><path d="M24 16v10l-6 8h12l-6-8"/><ellipse cx="14" cy="34" rx="5" ry="3"/><ellipse cx="34" cy="34" rx="5" ry="3"/></svg>
+          <div class="cardio-text"><span class="cardio-label">🏋️ En el gym</span><strong>Bici Fija o Elíptico</strong>20 minutos continuos</div>
+        </div>
+        <a class="cardio-card" href="https://youtu.be/WNz9C_vyIB0" target="_blank">
+          <svg class="cardio-icon" viewBox="0 0 48 48" fill="none" stroke="#457b9d" stroke-width="2.5"><circle cx="24" cy="10" r="4"/><line x1="24" y1="14" x2="24" y2="22"/><path d="M16 26 Q24 20 32 26"/><line x1="16" y1="26" x2="14" y2="36"/><line x1="32" y1="26" x2="34" y2="36"/></svg>
+          <div class="cardio-text"><span class="cardio-label">🏠 En casa &nbsp;▶ YT</span><strong>Rutina cardio sin saltos</strong>Video en YouTube</div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ DÍA 2 ══════════ -->
+<div class="day-card">
+  <div class="day-header" data-num="2"><h2>Día 2</h2><div class="day-focus">Hombros · Glúteos · Core</div></div>
+  <div class="day-body">
+
+    <div class="activation-block">
+      <div class="section-label"><div class="dot"></div>Activación<span class="rounds-badge">× 3 vueltas</span></div>
+      <div class="exercise-pills">
+        <a class="pill" href="https://www.youtube.com/shorts/giy3Cd5LUdo" target="_blank">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-plank"><rect x="3" y="11" width="18" height="3" rx="1.5"/><circle cx="12" cy="8" r="2"/><line x1="8" y1="14" x2="6" y2="19"/><line x1="16" y1="14" x2="18" y2="19"/></svg>
+          <span class="pill-name">Plancha alta</span><span class="pill-qty">20″</span>
+          <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+        </a>
+        <a class="pill" href="https://www.youtube.com/shorts/abTG0RoENZ8" target="_blank">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-glute"><path d="M5 15 Q12 9 19 15"/><line x1="5" y1="15" x2="5" y2="18"/><line x1="19" y1="15" x2="19" y2="18"/><circle cx="12" cy="11" r="2"/></svg>
+          <span class="pill-name">Puente de glúteos isométrico (talones)</span><span class="pill-qty">20″</span>
+          <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+        </a>
+        <a class="pill" href="https://www.youtube.com/shorts/c8qKQmdUco4" target="_blank">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-plank"><rect x="3" y="11" width="18" height="3" rx="1.5"/><circle cx="6" cy="8" r="2"/><line x1="18" y1="11" x2="21" y2="8"/></svg>
+          <span class="pill-name">Plancha alta – toco hombros</span><span class="pill-qty">10 c/b</span>
+          <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label"><div class="dot" style="background:#1a1a2e"></div>Trabajo Central – Fuerza</div>
+      <div class="bloque-wrap">
+        <div class="bloque">
+          <div class="bloque-title">🔶 1° Bloque <span class="rounds">× 2 vueltas</span></div>
+          <div class="bloque-exercises">
+            <a class="pill" href="https://www.youtube.com/shorts/8yY0zXMjBd0" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-shoulder"><circle cx="12" cy="4" r="2"/><line x1="12" y1="6" x2="12" y2="11"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="9" x2="4" y2="14"/><line x1="19" y1="9" x2="20" y2="14"/></svg>
+              <span class="pill-name">Press de hombros con mancuernas</span><span class="pill-qty">10 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+            <a class="pill" href="https://www.youtube.com/shorts/aUpSbzDLV-o" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-shoulder"><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="13"/><path d="M12 13l-6 4M12 13l6 4"/></svg>
+              <span class="pill-name">Vuelos posteriores con mancuernas</span><span class="pill-qty">12 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+          </div>
+        </div>
+        <div class="bloque">
+          <div class="bloque-title">🔶 2° Bloque <span class="rounds">× 3 vueltas</span></div>
+          <div class="bloque-exercises">
+            <a class="pill" href="https://www.youtube.com/shorts/kQ0W27RNDPc" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-lateral"><circle cx="12" cy="4" r="2"/><line x1="12" y1="6" x2="12" y2="15"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="8" y1="15" x2="6" y2="20"/><line x1="16" y1="15" x2="18" y2="20"/><path d="M6 13 Q4 11 5 9"/></svg>
+              <span class="pill-name">Elevaciones laterales glúteos</span><span class="pill-qty">12 c/p</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+            <a class="pill" href="https://youtube.com/shorts/rv44DZhCO1g" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-shoulder"><circle cx="12" cy="4" r="2"/><line x1="12" y1="6" x2="12" y2="13"/><line x1="5" y1="10" x2="19" y2="10"/></svg>
+              <span class="pill-name">Vuelos laterales de hombros</span><span class="pill-qty">8 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+            <a class="pill" href="https://www.youtube.com/shorts/fNsxKTKfMNI" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-plank"><rect x="2" y="10" width="20" height="3" rx="1.5"/><circle cx="6" cy="7" r="2"/></svg>
+              <span class="pill-name">Plancha lateral</span><span class="pill-qty">10 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+          </div>
+        </div>
+        <div class="bloque">
+          <div class="bloque-title">🔶 3° Bloque <span class="rounds">× 3 vueltas</span></div>
+          <div class="bloque-exercises">
+            <a class="pill" href="https://www.youtube.com/shorts/szI75kz2mSg" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-abs"><ellipse cx="12" cy="13" rx="5" ry="4"/><circle cx="12" cy="6" r="2"/><path d="M9 17 Q10 19 12 20 Q14 19 15 17"/></svg>
+              <span class="pill-name">Abdominales + empuje de disco</span><span class="pill-qty">12 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+            <a class="pill" href="https://www.youtube.com/shorts/GAx0ajAMB60" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-glute"><path d="M4 17 Q12 11 20 17"/><circle cx="12" cy="14" r="2"/><line x1="8" y1="19" x2="8" y2="22"/><line x1="16" y1="19" x2="14" y2="22"/></svg>
+              <span class="pill-name">Caminata de talones en puente de glúteos</span><span class="pill-qty">5 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cardio-block">
+      <div class="section-label"><div class="dot"></div>Cardio</div>
+      <div class="cardio-options">
+        <div class="cardio-card">
+          <svg class="cardio-icon" viewBox="0 0 48 48" fill="none" stroke="#e63946" stroke-width="2.5"><circle cx="24" cy="12" r="4"/><path d="M24 16v10l-6 8h12l-6-8"/><ellipse cx="14" cy="34" rx="5" ry="3"/><ellipse cx="34" cy="34" rx="5" ry="3"/></svg>
+          <div class="cardio-text"><span class="cardio-label">🏋️ En el gym</span><strong>Bici Fija o Elíptico</strong>20′ · descanso 3′ · 10′ más</div>
+        </div>
+        <a class="cardio-card" href="https://youtu.be/WNz9C_vyIB0" target="_blank">
+          <svg class="cardio-icon" viewBox="0 0 48 48" fill="none" stroke="#457b9d" stroke-width="2.5"><circle cx="24" cy="10" r="4"/><line x1="24" y1="14" x2="24" y2="22"/><path d="M16 26 Q24 20 32 26"/><line x1="16" y1="26" x2="14" y2="36"/><line x1="32" y1="26" x2="34" y2="36"/></svg>
+          <div class="cardio-text"><span class="cardio-label">🏠 En casa  ▶ YT</span><strong>Rutina cardio sin saltos</strong>Video en YouTube</div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ DÍA 3 ══════════ -->
+<div class="day-card">
+  <div class="day-header" data-num="3"><h2>Día 3</h2><div class="day-focus">Piernas · Espalda · Bíceps</div></div>
+  <div class="day-body">
+
+    <div class="activation-block">
+      <div class="section-label"><div class="dot"></div>Activación<span class="rounds-badge">× 3 vueltas</span></div>
+      <div class="exercise-pills">
+        <a class="pill" href="https://youtube.com/shorts/nchrAqUqusE" target="_blank">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-lunge"><circle cx="12" cy="3" r="2"/><line x1="12" y1="5" x2="12" y2="11"/><path d="M12 11l-5 7"/><path d="M12 11l4 7"/></svg>
+          <span class="pill-name">Estocadas alternadas sin peso</span><span class="pill-qty">10 (5 c/l)</span>
+          <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+        </a>
+        <a class="pill" href="https://www.youtube.com/shorts/WrpQYs_n_Pw" target="_blank">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-bicep"><circle cx="12" cy="4" r="2"/><line x1="12" y1="6" x2="12" y2="13"/><path d="M12 13 Q8 13 7 10"/><line x1="12" y1="13" x2="12" y2="18"/></svg>
+          <span class="pill-name">Bíceps con mancuerna</span><span class="pill-qty">10 reps</span>
+          <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label"><div class="dot" style="background:#1a1a2e"></div>Trabajo Central – Fuerza</div>
+      <div class="bloque-wrap">
+        <div class="bloque">
+          <div class="bloque-title">🟢 1° Bloque <span class="rounds">× 4 vueltas</span></div>
+          <div class="bloque-exercises">
+            <a class="pill" href="https://youtube.com/shorts/4ComQsKMJu0" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-box"><rect x="6" y="12" width="12" height="6" rx="1"/><circle cx="12" cy="5" r="2"/><path d="M12 7v5"/><line x1="9" y1="12" x2="8" y2="18"/><line x1="15" y1="12" x2="16" y2="18"/></svg>
+              <span class="pill-name">Subidas al cajón (modo escalón)</span><span class="pill-qty">6 c/p</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+            <a class="pill" href="https://youtube.com/shorts/3AdTKHAbRns" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-bicep"><circle cx="12" cy="4" r="2"/><line x1="12" y1="6" x2="12" y2="12"/><path d="M12 12 Q8 12 7 9"/><line x1="12" y1="12" x2="12" y2="18"/></svg>
+              <span class="pill-name">Bíceps con mancuerna alternado</span><span class="pill-qty">10 c/b</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+          </div>
+        </div>
+        <div class="bloque">
+          <div class="bloque-title">🟢 2° Bloque <span class="rounds">× 2 vueltas</span></div>
+          <div class="bloque-exercises">
+            <a class="pill" href="https://youtube.com/shorts/x2PlkJm5rec" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-row"><circle cx="12" cy="4" r="2"/><path d="M12 6v8"/><path d="M12 14 Q7 12 5 8"/><path d="M12 14 Q17 12 19 8"/></svg>
+              <span class="pill-name">Dorsalera agarre supino</span><span class="pill-qty">10 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+            <a class="pill" href="https://youtube.com/shorts/6snKWkbK74E" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-abs"><ellipse cx="12" cy="14" rx="6" ry="3"/><circle cx="12" cy="8" r="2"/><line x1="12" y1="10" x2="12" y2="11"/></svg>
+              <span class="pill-name">Pull over con disco (acostada)</span><span class="pill-qty">10 reps</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+          </div>
+        </div>
+        <div class="bloque">
+          <div class="bloque-title">🟢 3° Bloque <span class="rounds">× 3 vueltas</span></div>
+          <div class="bloque-exercises">
+            <a class="pill" href="https://youtube.com/shorts/F-CGeIAisRM" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-squat"><circle cx="12" cy="4" r="2"/><path d="M9 6h6v6H9z"/><line x1="9" y1="6" x2="7" y2="12"/><line x1="15" y1="6" x2="17" y2="12"/></svg>
+              <span class="pill-name">Sentadilla contra la pared (isométrica)</span><span class="pill-qty">sostener</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+            <a class="pill" href="https://youtube.com/shorts/5YNS6rteoxA" target="_blank">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-row"><circle cx="12" cy="4" r="2"/><line x1="12" y1="6" x2="12" y2="12"/><path d="M12 12 Q8 14 6 12"/><path d="M6 12 Q5 10 7 9"/></svg>
+              <span class="pill-name">Remo serrucho con mancuerna</span><span class="pill-qty">8 c/b</span>
+              <span class="yt-badge"><svg viewBox="0 0 24 24" fill="white"><path d="M23 7s-.3-2-1.2-2.8C20.7 3 19.4 3 18.8 2.9 16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.1l8.1 3.7-8.1 3.7z"/></svg>YT</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cardio-block">
+      <div class="section-label"><div class="dot"></div>Cardio</div>
+      <div class="cardio-options">
+        <div class="cardio-card">
+          <svg class="cardio-icon" viewBox="0 0 48 48" fill="none" stroke="#e63946" stroke-width="2.5"><circle cx="24" cy="12" r="4"/><path d="M24 16v10l-6 8h12l-6-8"/><ellipse cx="14" cy="34" rx="5" ry="3"/><ellipse cx="34" cy="34" rx="5" ry="3"/></svg>
+          <div class="cardio-text"><span class="cardio-label">🏋️ En el gym</span><strong>Bici Fija o Elíptico</strong>20 minutos continuos</div>
+        </div>
+        <a class="cardio-card" href="https://youtu.be/WNz9C_vyIB0" target="_blank">
+          <svg class="cardio-icon" viewBox="0 0 48 48" fill="none" stroke="#457b9d" stroke-width="2.5"><circle cx="24" cy="10" r="4"/><line x1="24" y1="14" x2="24" y2="22"/><path d="M16 26 Q24 20 32 26"/><line x1="16" y1="26" x2="14" y2="36"/><line x1="32" y1="26" x2="34" y2="36"/></svg>
+          <div class="cardio-text"><span class="cardio-label">🏠 En casa &nbsp;▶ YT</span><strong>Rutina cardio sin saltos</strong>Video en YouTube</div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<footer>Plan preparado por tu profe · Tocá cualquier ejercicio para ver el video en YouTube 💪</footer>
+</body>
+</html>
